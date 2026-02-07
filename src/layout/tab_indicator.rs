@@ -576,7 +576,7 @@ fn render_title_texture(
     let _span = tracy_client::span!("tab_indicator::render_title_texture");
 
     // TODO: expose in config
-    let mut font = FontDescription::from_string(&format!("sans {font_size}px"));
+    let mut font = FontDescription::from_string(&format!("Victor Mono {font_size}px"));
     font.set_absolute_size(to_physical_precise_round(scale, font.size()));
 
     let surface = ImageSurface::create(cairo::Format::ARgb32, 0, 0)?;
@@ -646,8 +646,13 @@ where
                             - texture.logical_size().w / 2.;
 
                         let pos_y = match self.config.position {
-                            TabIndicatorPosition::Top => -GAP_TO_BAR,
-                            TabIndicatorPosition::Bottom => GAP_TO_BAR - texture.logical_size().h,
+                            // TODO: Handle orginal tab style and embedded title style
+                            TabIndicatorPosition::Top => {
+                                self.font_height()
+                                    + GAP_TO_BAR
+                                    + (self.config.width - self.font_height()) / 2.
+                            }
+                            TabIndicatorPosition::Bottom => -texture.logical_size().h,
                         };
 
                         Some(PrimaryGpuTextureRenderElement(
