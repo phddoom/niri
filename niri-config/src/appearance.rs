@@ -526,6 +526,7 @@ pub struct TabIndicator {
     pub active_gradient: Option<Gradient>,
     pub inactive_gradient: Option<Gradient>,
     pub urgent_gradient: Option<Gradient>,
+    pub embed_title: bool,
 }
 
 impl Default for TabIndicator {
@@ -549,6 +550,7 @@ impl Default for TabIndicator {
             active_gradient: None,
             inactive_gradient: None,
             urgent_gradient: None,
+            embed_title: false,
         }
     }
 }
@@ -568,6 +570,7 @@ impl MergeWith<TabIndicatorPart> for TabIndicator {
             width,
             gaps_between_tabs,
             corner_radius,
+            embed_title
         );
 
         merge_clone!((self, part), title_font_size, length, position);
@@ -617,6 +620,8 @@ pub struct TabIndicatorPart {
     pub inactive_gradient: Option<Gradient>,
     #[knus(child)]
     pub urgent_gradient: Option<Gradient>,
+    #[knus(child)]
+    pub embed_title: Option<Flag>,
 }
 
 #[derive(knus::Decode, Debug, Clone, Copy, PartialEq)]

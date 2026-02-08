@@ -120,7 +120,7 @@ impl TabIndicator {
 
         let progress = self.open_anim.as_ref().map_or(1., |a| a.value().max(0.));
 
-        let width = round_max1(self.config.width);
+        let width = round_max1(self.calculated_width());
         let gaps_between = round_max1(self.config.gaps_between_tabs);
 
         let position = self.config.position;
@@ -171,6 +171,17 @@ impl TabIndicator {
 
             Rectangle::new(loc, size)
         })
+    }
+
+    fn calculated_width(&self) -> f64 {
+        info!("font_height: {}", self.font_height());
+        let width = if self.config.embed_title {
+            f64::max(self.font_height() + (GAP_TO_BAR * 2.), self.config.width)
+        } else {
+            self.config.width
+        };
+        info!("width: {}", width);
+        width
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -366,7 +377,7 @@ impl TabIndicator {
         }
 
         let round = |logical: f64| round_logical_in_physical(scale, logical);
-        let width = round(self.config.width);
+        let width = round(self.calculated_width());
         let gap = round(self.config.gap);
         let font_height = self.font_height()
             + (if !self.config.hide_titles {
@@ -645,14 +656,19 @@ where
                         let pos_x = (tex.max_size.w + MIN_DIST_TO_EDGES) / 2.
                             - texture.logical_size().w / 2.;
 
-                        let pos_y = match self.config.position {
-                            // TODO: Handle orginal tab style and embedded title style
-                            TabIndicatorPosition::Top => {
-                                self.font_height()
-                                    + GAP_TO_BAR
-                                    + (self.config.width - self.font_height()) / 2.
+                        let pos_y = if self.config.embed_title {
+                            match self.config.position {
+                                TabIndicatorPosition::Top => self.font_height() + GAP_TO_BAR * 2.,
+                                // TODO: Handle pos_y for embed_title: true on the bottom
+                                TabIndicatorPosition::Bottom => -texture.logical_size().h,
                             }
-                            TabIndicatorPosition::Bottom => -texture.logical_size().h,
+                        } else {
+                            match self.config.position {
+                                TabIndicatorPosition::Top => -GAP_TO_BAR,
+                                TabIndicatorPosition::Bottom => {
+                                    GAP_TO_BAR - texture.logical_size().h
+                                }
+                            }
                         };
 
                         Some(PrimaryGpuTextureRenderElement(
