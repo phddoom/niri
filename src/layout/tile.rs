@@ -146,7 +146,12 @@ impl<W: LayoutElement> WindowInner<W> {
         match self {
             Self::Single(w) => w.as_ref().unwrap(),
             Self::Multiple { windows, focus_idx } => {
-                *focus_idx = (*focus_idx - 1) % windows.len();
+                // Handle looping back around if currently at start of tabs.
+                if *focus_idx == 0 {
+                    *focus_idx = windows.len() - 1
+                } else {
+                    *focus_idx = (*focus_idx - 1) % windows.len();
+                }
                 windows
                     .get(*focus_idx)
                     .expect("should have correct focus_idx")

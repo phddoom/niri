@@ -174,14 +174,11 @@ impl TabIndicator {
     }
 
     fn calculated_width(&self) -> f64 {
-        info!("font_height: {}", self.font_height());
-        let width = if self.config.embed_title {
+        if self.config.embed_title {
             f64::max(self.font_height() + (GAP_TO_BAR * 2.), self.config.width)
         } else {
             self.config.width
-        };
-        info!("width: {}", width);
-        width
+        }
     }
 
     #[allow(clippy::too_many_arguments)]
